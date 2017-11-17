@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-3.2.xsd ">
+
+	<!-- 这个配置文件用于配置web.xml中shiroFilter对应的spring容器中的bean，securityManager以及自定义realm -->
+	
+	<!-- web.xml中的shiroFilter对应的bean -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager"></property>
+		<!-- 认证提交地址，用户如果没有认证，shiro将会把请求该地址进行认证，请求地址由formAuthenticationFilter进行表单认证 -->
+		<property name="loginUrl" value="/jsp/login.jsp"></property>
+		<!-- 用户认证成功，将会跳转到该地址，如果不配置，则会跳到之前请求的地址 -->
+		<property name="successUrl" value="/first.action"></property>
+		<property name="unauthorizedUrl" value="/refuse.jsp" />
+		<!-- 过滤链定义，执行顺序从上到下，一般讲/**放在最后 -->
+		<property name="filterChainDefinitions">
+			<value>
+				<!-- 静态资源，不用认证，即可以匿名访问 -->
+				/images/**=anon
+				/js/**=anon
+				/style/**=anon
+				
+				/login.action = anon
+				
+				<!-- 请求这个地址自动退出 -->
+				/logout.action = logout
+				
+				<!-- /**=anon表示所有资源均可以匿名访问，无需认证，anon是shiro一个过滤器的缩写形式 -->
+				/**=authc
+			</value>
+		</property>
+	</bean>
+	
+	<!-- 安全管理器配置 -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realm" ref="customRealm"></property>
+	</bean>
+	
+	<!-- 自定义realm配置 -->
+	<bean id="customRealm" class="shiro.CustomRealm"/>
+
+</beans>
